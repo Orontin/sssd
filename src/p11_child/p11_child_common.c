@@ -65,6 +65,8 @@ static int do_work(TALLOC_CTX *mem_ctx, enum op_mode mode, const char *ca_db,
                    const char *key_id, const char *label, const char *uri,
                    char **multi)
 {
+    pkinit_openssl_init();
+
     int ret;
     struct p11_ctx *p11_ctx;
 
