@@ -28,6 +28,42 @@
 /* for CK_MECHANISM_TYPE */
 #include <p11-kit/pkcs11.h>
 
+#include <openssl/ssl.h>
+#include <openssl/crypto.h>
+#include <openssl/x509.h>
+#include <openssl/err.h>
+#include <openssl/rand.h>
+#include <openssl/ocsp.h>
+#include <openssl/engine.h>
+
+static ENGINE *eng = NULL;
+
+static void
+krb5int_init_gost(void)
+{
+    if (eng) return;
+    OPENSSL_add_all_algorithms_conf();
+    ERR_load_crypto_strings();
+
+    if (!(eng = ENGINE_by_id("gost"))) {
+        printf("Engine gost doesnt exist");
+        return;
+    }
+
+    ENGINE_init(eng);
+    ENGINE_set_default(eng, ENGINE_METHOD_ALL);
+}
+
+static int
+pkinit_openssl_init(void)
+{
+    /* Initialize OpenSSL. */
+    ERR_load_crypto_strings();
+    OpenSSL_add_all_algorithms();
+    krb5int_init_gost();
+    return 0;
+}
+
 /* Time to wait for new slot events. */
 #define PKCS11_SLOT_EVENT_WAIT_TIME 1
 struct p11_ctx;
